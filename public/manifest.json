@@ -1,0 +1,19 @@
+{
+  "name": "Weather Dashboard",
+  "short_name": "Weather",
+  "description": "Real-time weather monitoring dashboard",
+  "theme_color": "#3B82F6",
+  "background_color": "#0f172a",
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

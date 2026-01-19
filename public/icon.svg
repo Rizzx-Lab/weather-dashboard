@@ -1,0 +1,41 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <defs>
+    <linearGradient id="bgGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3B82F6"/>
+      <stop offset="100%" stop-color="#1E40AF"/>
+    </linearGradient>
+    <linearGradient id="sunGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FBBF24"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="rgba(0,0,0,0.3)"/>
+    </filter>
+  </defs>
+  
+  <!-- Background with rounded corners -->
+  <rect width="100" height="100" rx="20" fill="url(#bgGradient)"/>
+  
+  <!-- Sun -->
+  <circle cx="35" cy="35" r="15" fill="url(#sunGradient)" filter="url(#shadow)"/>
+  
+  <!-- Sun rays -->
+  <g stroke="url(#sunGradient)" stroke-width="2" stroke-linecap="round">
+    <line x1="35" y1="15" x2="35" y1="25"/>
+    <line x1="50" y1="30" x2="55" y2="35"/>
+    <line x1="55" y1="35" x2="50" y2="40"/>
+    <line x1="35" y1="55" x2="35" y2="50"/>
+    <line x1="20" y1="40" x2="15" y2="35"/>
+    <line x1="15" y1="35" x2="20" y2="30"/>
+  </g>
+  
+  <!-- Cloud -->
+  <g filter="url(#shadow)">
+    <path d="M25 65 Q50 50 75 65 Q65 80 50 85 Q35 80 25 65" fill="#FFFFFF"/>
+    <circle cx="40" cy="60" r="8" fill="#FFFFFF"/>
+    <circle cx="60" cy="60" r="10" fill="#FFFFFF"/>
+  </g>
+  
+  <!-- Border -->
+  <rect width="100" height="100" rx="20" fill="none" stroke="#FFFFFF" stroke-width="2" opacity="0.3"/>
+</svg>

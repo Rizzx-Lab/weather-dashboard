@@ -8,6 +8,7 @@ import ForecastChart from './components/ForecastChart';
 import FavoriteCities from './components/FavoriteCities';
 import ThemeToggle from './components/ThemeToggle';
 import PWAInstall from './components/PWAInstall';
+import WeatherAnalytics from './components/WeatherAnalytics';
 import { FiSun, FiCloud, FiAlertTriangle, FiInfo, FiMap, FiGlobe, FiPhone, FiMail, FiGithub } from 'react-icons/fi';
 import { WiDaySunny, WiCloudy } from 'react-icons/wi';
 
@@ -18,7 +19,7 @@ function App() {
   const [error, setError] = useState('');
   const [unit, setUnit] = useState('C');
   const [favorites, setFavorites] = useState(['Jakarta', 'Bandung', 'Surabaya']);
-  const [activeTab, setActiveTab] = useState('weather'); // 'weather' or 'map'
+  const [activeTab, setActiveTab] = useState('weather');
   const [apiStatus, setApiStatus] = useState('active');
 
   useEffect(() => {
@@ -82,8 +83,6 @@ function App() {
     );
   };
 
-  const toggleUnit = () => setUnit(unit === 'C' ? 'F' : 'C');
-
   const addToFavorites = () => {
     if (weatherData && !favorites.includes(weatherData.name)) {
       const updatedFavorites = [...favorites, weatherData.name];
@@ -98,7 +97,6 @@ function App() {
     localStorage.setItem('weather-favorites', JSON.stringify(updatedFavorites));
   };
 
-  // Load favorites from localStorage
   useEffect(() => {
     const savedFavorites = localStorage.getItem('weather-favorites');
     if (savedFavorites) {
@@ -111,13 +109,9 @@ function App() {
                   dark:from-gray-900 dark:via-slate-900 dark:to-gray-900 
                   p-4 md:p-8 transition-colors duration-300">
       
-      {/* Theme Toggle */}
       <ThemeToggle />
-      
-      {/* PWA Install Button */}
       <PWAInstall />
 
-      {/* Header */}
       <header className="max-w-7xl mx-auto mb-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
           <div>
@@ -178,10 +172,7 @@ function App() {
         </div>
       </header>
 
-
-
       <main className="max-w-7xl mx-auto">
-        {/* Search Section */}
         <section className="mb-8">
           <SearchBar 
             onSearch={fetchWeather}
@@ -190,7 +181,6 @@ function App() {
           />
         </section>
 
-        {/* Tab Navigation */}
         <div className="flex gap-4 mb-8">
           <button
             onClick={() => setActiveTab('weather')}
@@ -216,10 +206,8 @@ function App() {
           </button>
         </div>
 
-        {/* Loading State */}
         {isLoading && <LoadingSpinner />}
 
-        {/* Error State */}
         {error && apiStatus === 'error' && !isLoading && (
           <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 
                         dark:border-red-800 rounded-2xl p-8 text-center">
@@ -248,26 +236,29 @@ function App() {
           </div>
         )}
 
-        {/* Content based on active tab */}
         {!isLoading && !error && (
           <>
             {activeTab === 'weather' ? (
               <>
-                {/* Current Weather */}
                 {weatherData && (
                   <section className="mb-8">
                     <WeatherCard weatherData={weatherData} unit={unit} />
                   </section>
                 )}
 
-                {/* Forecast */}
                 {forecastData && (
                   <section className="mb-8">
                     <ForecastChart forecastData={forecastData} unit={unit} />
                   </section>
                 )}
 
-                {/* Favorites */}
+                {/* WEATHER ANALYTICS - GRAFIK CHARTS */}
+                {forecastData && (
+                  <section className="mb-8">
+                    <WeatherAnalytics forecast={forecastData} />
+                  </section>
+                )}
+
                 <section className="mb-8">
                   <FavoriteCities
                     favorites={favorites}
@@ -278,7 +269,6 @@ function App() {
                 </section>
               </>
             ) : (
-              /* Map View */
               <section className="mb-8">
                 <WeatherMap weatherData={weatherData} favorites={favorites} />
               </section>
@@ -286,7 +276,6 @@ function App() {
           </>
         )}
 
-        {/* Info Box */}
         <div className="bg-gradient-to-r from-blue-500 to-cyan-500 rounded-2xl p-8 
                       text-white shadow-xl mb-8">
           <h3 className="text-2xl font-bold mb-4 flex items-center gap-3">
@@ -303,6 +292,7 @@ function App() {
                 <li>• Progressive Web App (PWA)</li>
                 <li>• Fully Responsive Design</li>
                 <li>• Smooth Animations</li>
+                <li>• Weather Analytics Charts</li>
               </ul>
             </div>
             <div>
@@ -314,6 +304,7 @@ function App() {
                 <li>• City Search & Geolocation</li>
                 <li>• Favorites System</li>
                 <li>• Unit Conversion (°C/°F)</li>
+                <li>• Real-time Data Visualization</li>
               </ul>
             </div>
             <div>
@@ -323,6 +314,7 @@ function App() {
               <ul className="space-y-2 text-blue-100">
                 <li>• React 18 + Vite</li>
                 <li>• Tailwind CSS</li>
+                <li>• Recharts + Framer Motion</li>
                 <li>• OpenWeather API</li>
                 <li>• Vercel Deployment</li>
               </ul>
@@ -331,11 +323,9 @@ function App() {
         </div>
       </main>
 
-      {/* Footer */}
       <footer className="max-w-7xl mx-auto mt-12 pt-8 border-t border-gray-300 
                        dark:border-gray-700">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
-          {/* Left Section - Project Info */}
           <div>
             <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-3">
               Weather Dashboard v2.0
@@ -363,7 +353,6 @@ function App() {
             </div>
           </div>
 
-          {/* Right Section - Contact */}
           <div>
             <h4 className="text-lg font-semibold text-gray-800 dark:text-white mb-3">
               Contact Me
@@ -399,7 +388,6 @@ function App() {
           </div>
         </div>
 
-        {/* Bottom Copyright */}
         <div className="text-center pt-6 border-t border-gray-200 dark:border-gray-700">
           <p className="text-gray-600 dark:text-gray-400">
             © {new Date().getFullYear()} • Made with ❤️ by 

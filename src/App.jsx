@@ -8,7 +8,7 @@ import ForecastChart from './components/ForecastChart';
 import FavoriteCities from './components/FavoriteCities';
 import ThemeToggle from './components/ThemeToggle';
 import PWAInstall from './components/PWAInstall';
-import { FiSun, FiCloud, FiAlertTriangle, FiInfo, FiMap, FiGlobe } from 'react-icons/fi';
+import { FiSun, FiCloud, FiAlertTriangle, FiInfo, FiMap, FiGlobe, FiPhone, FiMail, FiGithub } from 'react-icons/fi';
 import { WiDaySunny, WiCloudy } from 'react-icons/wi';
 
 function App() {
@@ -178,43 +178,7 @@ function App() {
         </div>
       </header>
 
-      {/* API Status Banner */}
-      <div className={`max-w-7xl mx-auto mb-6 p-4 rounded-xl ${
-        apiStatus === 'active' 
-          ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800' 
-          : 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800'
-      }`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className={`w-3 h-3 rounded-full ${
-              apiStatus === 'active' ? 'bg-green-500' : 'bg-red-500'
-            }`}></div>
-            <div>
-              <h3 className={`font-semibold ${
-                apiStatus === 'active' ? 'text-green-800 dark:text-green-300' : 'text-red-800 dark:text-red-300'
-              }`}>
-                {apiStatus === 'active' ? '✅ API Aktif' : '❌ API Error'}
-              </h3>
-              <p className={`text-sm ${
-                apiStatus === 'active' ? 'text-green-700 dark:text-green-400' : 'text-red-700 dark:text-red-400'
-              }`}>
-                {apiStatus === 'active' 
-                  ? 'Menggunakan data real-time dari OpenWeather API' 
-                  : error}
-              </p>
-            </div>
-          </div>
-          {apiStatus === 'error' && (
-            <button
-              onClick={() => fetchWeather('Jakarta')}
-              className="px-4 py-2 rounded-lg bg-red-500 text-white text-sm font-semibold 
-                       hover:bg-red-600 transition-colors"
-            >
-              Coba Lagi
-            </button>
-          )}
-        </div>
-      </div>
+
 
       <main className="max-w-7xl mx-auto">
         {/* Search Section */}
@@ -370,40 +334,78 @@ function App() {
       {/* Footer */}
       <footer className="max-w-7xl mx-auto mt-12 pt-8 border-t border-gray-300 
                        dark:border-gray-700">
-        <div className="text-center text-gray-600 dark:text-gray-400">
-          <p className="mb-2">
-            <span className="font-semibold text-gray-800 dark:text-white">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-6">
+          {/* Left Section - Project Info */}
+          <div>
+            <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-3">
               Weather Dashboard v2.0
-            </span> 
-            <span className="mx-2">•</span>
-            Fresh Grad Portfolio Project
-          </p>
-          <p className="text-sm">
-            API Status: 
-            <span className={`font-semibold mx-2 ${
-              apiStatus === 'active' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
-            }`}>
-              {apiStatus === 'active' ? '✅ Active' : '❌ Error'}
+            </h3>
+            <p className="text-gray-600 dark:text-gray-400 mb-4">
+              Fresh Grad Portfolio Project - Real-time weather monitoring with interactive features
+            </p>
+            <div className="flex items-center gap-3">
+              <div className={`w-3 h-3 rounded-full ${
+                apiStatus === 'active' ? 'bg-green-500 animate-pulse' : 'bg-red-500'
+              }`}></div>
+              <span className={`font-semibold ${
+                apiStatus === 'active' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'
+              }`}>
+                API Status: {apiStatus === 'active' ? 'Active' : 'Error'}
+              </span>
+              {apiStatus === 'active' && weatherData && (
+                <>
+                  <span className="text-gray-400">•</span>
+                  <span className="text-gray-600 dark:text-gray-400">
+                    {weatherData.name} • {weatherData.main.temp.toFixed(1)}°C
+                  </span>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Right Section - Contact */}
+          <div>
+            <h4 className="text-lg font-semibold text-gray-800 dark:text-white mb-3">
+              Contact Me
+            </h4>
+            <div className="space-y-2">
+              <a 
+                href="tel:+6281027099361"
+                className="flex items-center gap-3 text-gray-600 dark:text-gray-400 
+                         hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+              >
+                <FiPhone className="text-lg" />
+                <span>0881-0270-99361</span>
+              </a>
+              <a 
+                href="mailto:muhammadfarizsetiawan1604@gmail.com"
+                className="flex items-center gap-3 text-gray-600 dark:text-gray-400 
+                         hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+              >
+                <FiMail className="text-lg" />
+                <span>muhammadfarizsetiawan1604@gmail.com</span>
+              </a>
+              <a 
+                href="https://github.com/Rizzx-Lab/weather-dashboard" 
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 text-gray-600 dark:text-gray-400 
+                         hover:text-blue-500 dark:hover:text-blue-400 transition-colors"
+              >
+                <FiGithub className="text-lg" />
+                <span>View on GitHub</span>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* Bottom Copyright */}
+        <div className="text-center pt-6 border-t border-gray-200 dark:border-gray-700">
+          <p className="text-gray-600 dark:text-gray-400">
+            © {new Date().getFullYear()} • Made with ❤️ by 
+            <span className="font-semibold text-gray-800 dark:text-white mx-1">
+              Muhammad Fariz Setiawan
             </span>
-            {apiStatus === 'active' && weatherData && (
-              <>
-                <span className="mx-3">•</span>
-                Current: <span className="font-semibold">{weatherData.name}</span>
-                <span className="mx-1">•</span>
-                Temp: <span className="font-semibold">{weatherData.main.temp.toFixed(1)}°C</span>
-              </>
-            )}
-          </p>
-          <p className="text-xs mt-4 text-gray-500 dark:text-gray-500">
-            © {new Date().getFullYear()} • Made with ❤️ by [Your Name] • 
-            <a 
-              href="https://github.com/yourusername/weather-dashboard" 
-              className="ml-2 text-blue-500 hover:underline"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              View on GitHub
-            </a>
           </p>
         </div>
       </footer>

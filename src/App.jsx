@@ -18,12 +18,93 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [unit, setUnit] = useState('C');
-  const [favorites, setFavorites] = useState(['Jakarta', 'Bandung', 'Surabaya']);
+  const [favorites, setFavorites] = useState([]); // 👈 KOSONG, tidak ada default Jakarta/Bandung/Surabaya
   const [activeTab, setActiveTab] = useState('weather');
   const [apiStatus, setApiStatus] = useState('active');
+  const [locationDetected, setLocationDetected] = useState(false);
 
+  // Load favorites dari localStorage saat pertama kali
   useEffect(() => {
-    fetchWeather('Jakarta');
+    const savedFavorites = localStorage.getItem('weather-favorites');
+    if (savedFavorites) {
+      setFavorites(JSON.parse(savedFavorites));
+    }
+  }, []);
+
+  // AUTO-DETECT LOCATION saat pertama kali load
+  useEffect(() => {
+    const initializeWeather = async () => {
+      // Cek apakah browser support geolocation
+      if (!navigator.geolocation) {
+        console.log('Browser tidak support geolocation, menggunakan Jakarta sebagai default');
+        fetchWeather('Jakarta');
+        return;
+      }
+
+      setIsLoading(true);
+
+      // Coba auto-detect lokasi user
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          try {
+            const { latitude, longitude } = position.coords;
+            console.log('📍 Lokasi terdeteksi:', latitude, longitude);
+            
+            // Fetch weather berdasarkan koordinat
+            const [current, forecast] = await Promise.all([
+              weatherAPI.getByCoords(latitude, longitude),
+              weatherAPI.getForecast(`${latitude},${longitude}`)
+            ]);
+            
+            setWeatherData(current);
+            setForecastData(forecast);
+            setLocationDetected(true);
+            setApiStatus('active');
+            setError('');
+            
+            // 👇 AUTO-ADD kota device ke favorites jika belum ada
+            const cityName = current.name;
+            const savedFavorites = localStorage.getItem('weather-favorites');
+            const currentFavorites = savedFavorites ? JSON.parse(savedFavorites) : [];
+            
+            if (!currentFavorites.includes(cityName)) {
+              const updatedFavorites = [cityName, ...currentFavorites]; // Taruh di paling depan
+              setFavorites(updatedFavorites);
+              localStorage.setItem('weather-favorites', JSON.stringify(updatedFavorites));
+              console.log(`✅ "${cityName}" ditambahkan ke favorites`);
+            }
+            
+            console.log('✅ Weather data loaded dari lokasi kamu:', current.name);
+          } catch (err) {
+            console.error('❌ Error fetching weather by coords:', err);
+            // Fallback ke Jakarta jika gagal
+            fetchWeather('Jakarta');
+          } finally {
+            setIsLoading(false);
+          }
+        },
+        (error) => {
+          // User tolak permission atau error lainnya
+          console.log('⚠️ Geolocation error:', error.message);
+          
+          if (error.code === 1) {
+            console.log('User menolak akses lokasi, menggunakan Jakarta sebagai default');
+          } else {
+            console.log('Gagal mendeteksi lokasi, menggunakan Jakarta sebagai default');
+          }
+          
+          // Fallback ke Jakarta
+          fetchWeather('Jakarta');
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 10000,
+          maximumAge: 0
+        }
+      );
+    };
+
+    initializeWeather();
   }, []);
 
   const fetchWeather = async (city) => {
@@ -40,6 +121,7 @@ function App() {
       setWeatherData(current);
       setForecastData(forecast);
       setApiStatus('active');
+      setLocationDetected(false);
     } catch (err) {
       setError(err.message);
       setApiStatus('error');
@@ -55,16 +137,34 @@ function App() {
     }
 
     setIsLoading(true);
+    setError('');
     
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         try {
           const { latitude, longitude } = position.coords;
-          const data = await weatherAPI.getByCoords(latitude, longitude);
-          setWeatherData(data);
-          setError('');
+          
+          // Fetch current weather dan forecast
+          const [current, forecast] = await Promise.all([
+            weatherAPI.getByCoords(latitude, longitude),
+            weatherAPI.getForecast(`${latitude},${longitude}`)
+          ]);
+          
+          setWeatherData(current);
+          setForecastData(forecast);
+          setLocationDetected(true);
           setApiStatus('active');
           setActiveTab('weather');
+          setError('');
+
+          // 👇 AUTO-ADD kota ke favorites jika belum ada (saat manual click)
+          const cityName = current.name;
+          if (!favorites.includes(cityName)) {
+            const updatedFavorites = [cityName, ...favorites];
+            setFavorites(updatedFavorites);
+            localStorage.setItem('weather-favorites', JSON.stringify(updatedFavorites));
+            console.log(`✅ "${cityName}" ditambahkan ke favorites`);
+          }
         } catch (err) {
           setError('Gagal mengambil data lokasi. Coba kota lain.');
           setApiStatus('error');
@@ -76,9 +176,18 @@ function App() {
         setIsLoading(false);
         if (error.code === 1) {
           setError('Akses lokasi ditolak. Izinkan akses lokasi di browser.');
+        } else if (error.code === 2) {
+          setError('Lokasi tidak tersedia. Periksa koneksi GPS/internet.');
+        } else if (error.code === 3) {
+          setError('Timeout mendeteksi lokasi. Coba lagi.');
         } else {
           setError('Gagal mendeteksi lokasi.');
         }
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0
       }
     );
   };
@@ -96,13 +205,6 @@ function App() {
     setFavorites(updatedFavorites);
     localStorage.setItem('weather-favorites', JSON.stringify(updatedFavorites));
   };
-
-  useEffect(() => {
-    const savedFavorites = localStorage.getItem('weather-favorites');
-    if (savedFavorites) {
-      setFavorites(JSON.parse(savedFavorites));
-    }
-  }, []);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50 
@@ -128,6 +230,11 @@ function App() {
             </div>
             <p className="text-gray-600 dark:text-gray-300 text-lg">
               Real-time weather monitoring with interactive map
+              {locationDetected && (
+                <span className="ml-2 text-green-600 dark:text-green-400 font-semibold">
+                  📍 Auto-detected your location
+                </span>
+              )}
             </p>
           </div>
           
@@ -218,6 +325,13 @@ function App() {
             <p className="text-red-600 dark:text-red-400 mb-6">{error}</p>
             <div className="flex justify-center gap-4">
               <button
+                onClick={handleUseLocation}
+                className="bg-blue-500 text-white px-6 py-3 rounded-xl hover:bg-blue-600 
+                         font-semibold transition-colors flex items-center gap-2"
+              >
+                📍 Gunakan Lokasi Saya
+              </button>
+              <button
                 onClick={() => fetchWeather('Jakarta')}
                 className="bg-red-500 text-white px-6 py-3 rounded-xl hover:bg-red-600 
                          font-semibold transition-colors"
@@ -301,7 +415,9 @@ function App() {
               </h4>
               <ul className="space-y-2 text-blue-100">
                 <li>• Live Weather Map (Leaflet)</li>
-                <li>• City Search & Geolocation</li>
+                <li>• Auto Location Detection 📍</li>
+                <li>• Auto-Add Device City to Favorites</li>
+                <li>• City Search & Manual Geolocation</li>
                 <li>• Favorites System</li>
                 <li>• Unit Conversion (°C/°F)</li>
                 <li>• Real-time Data Visualization</li>

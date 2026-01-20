@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { weatherAPI } from './utils/api';
-import WeatherCard from './components/WeatherCard';
+import AdvancedWeatherCard from './components/AdvancedWeatherCard';
 import WeatherMap from './components/WeatherMap';
 import SearchBar from './components/SearchBar';
 import LoadingSpinner from './components/LoadingSpinner';
@@ -242,7 +242,7 @@ function App() {
               <>
                 {weatherData && (
                   <section className="mb-8">
-                    <WeatherCard weatherData={weatherData} unit={unit} />
+                    <AdvancedWeatherCard weatherData={weatherData} unit={unit} />
                   </section>
                 )}
 
@@ -252,7 +252,6 @@ function App() {
                   </section>
                 )}
 
-                {/* WEATHER ANALYTICS - GRAFIK CHARTS */}
                 {forecastData && (
                   <section className="mb-8">
                     <WeatherAnalytics forecast={forecastData} />
@@ -292,6 +291,7 @@ function App() {
                 <li>• Progressive Web App (PWA)</li>
                 <li>• Fully Responsive Design</li>
                 <li>• Smooth Animations</li>
+                <li>• Advanced Weather Card</li>
                 <li>• Weather Analytics Charts</li>
               </ul>
             </div>
@@ -315,6 +315,7 @@ function App() {
                 <li>• React 18 + Vite</li>
                 <li>• Tailwind CSS</li>
                 <li>• Recharts + Framer Motion</li>
+                <li>• React Spring Animations</li>
                 <li>• OpenWeather API</li>
                 <li>• Vercel Deployment</li>
               </ul>

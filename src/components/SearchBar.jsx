@@ -13,6 +13,11 @@ const SearchBar = ({ onSearch, onUseLocation, isLoading }) => {
     }
   };
 
+  const handleUseLocation = () => {
+    setCity(''); // Clear input saat gunakan lokasi
+    onUseLocation();
+  };
+
   return (
     <div className="w-full max-w-3xl mx-auto">
       <form onSubmit={handleSubmit} className="relative mb-4">
@@ -30,16 +35,6 @@ const SearchBar = ({ onSearch, onUseLocation, isLoading }) => {
           />
           <div className="absolute right-2 top-1/2 transform -translate-y-1/2 flex gap-2">
             <button
-              type="button"
-              onClick={onUseLocation}
-              disabled={isLoading}
-              className="p-3 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors 
-                       disabled:opacity-50 disabled:cursor-not-allowed"
-              title="Gunakan lokasi saya"
-            >
-              <FiNavigation className="text-gray-600 text-lg" />
-            </button>
-            <button
               type="submit"
               disabled={isLoading || !city.trim()}
               className="px-6 py-3 rounded-xl bg-blue-500 text-white font-semibold
@@ -51,6 +46,20 @@ const SearchBar = ({ onSearch, onUseLocation, isLoading }) => {
           </div>
         </div>
       </form>
+
+      {/* Use My Location Button - Prominent placement */}
+      <button
+        onClick={handleUseLocation}
+        disabled={isLoading}
+        className="w-full mb-4 px-6 py-4 rounded-2xl bg-gradient-to-r from-blue-500 to-blue-600 
+                 text-white font-semibold hover:from-blue-600 hover:to-blue-700 
+                 transition-all shadow-lg hover:shadow-xl transform hover:scale-[1.02]
+                 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none
+                 flex items-center justify-center gap-3"
+      >
+        <FiNavigation className="text-xl" />
+        <span>📍 Gunakan Lokasi Saya</span>
+      </button>
 
       {/* Popular cities */}
       <div className="flex flex-wrap items-center gap-3">

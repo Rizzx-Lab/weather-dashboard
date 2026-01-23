@@ -30,7 +30,7 @@ export const weatherAPI = {
     }
   },
 
-  // Get forecast
+  // Get forecast - SUDAH DIPERBAIKI untuk 24 jam (cnt=9)
   getForecast: async (city) => {
     try {
       if (typeof city === 'string' && city.includes(',')) {
@@ -38,8 +38,9 @@ export const weatherAPI = {
         return await weatherAPI.getForecastByCoords(parseFloat(lat), parseFloat(lon));
       }
 
+      // ✅ DIPERBAIKI: cnt=9 untuk mendapatkan 8 data (24 jam)
       const response = await axios.get(
-        `${BASE_URL}/forecast?q=${city}&appid=${WEATHER_API_KEY}&units=metric&lang=id`
+        `${BASE_URL}/forecast?q=${city}&appid=${WEATHER_API_KEY}&units=metric&lang=id&cnt=9`
       );
       return response.data;
     } catch (error) {
@@ -59,15 +60,54 @@ export const weatherAPI = {
     }
   },
 
-  // Get forecast by coordinates
+  // Get forecast by coordinates - SUDAH DIPERBAIKI untuk 24 jam
   getForecastByCoords: async (lat, lon) => {
     try {
+      // ✅ DIPERBAIKI: cnt=9 untuk mendapatkan 8 data (24 jam)
       const response = await axios.get(
-        `${BASE_URL}/forecast?lat=${lat}&lon=${lon}&appid=${WEATHER_API_KEY}&units=metric&lang=id`
+        `${BASE_URL}/forecast?lat=${lat}&lon=${lon}&appid=${WEATHER_API_KEY}&units=metric&lang=id&cnt=9`
       );
       return response.data;
     } catch (error) {
       throw new Error('Tidak dapat mengambil prakiraan cuaca untuk lokasi ini');
+    }
+  },
+
+  // ✅ DITAMBAHKAN: Fungsi untuk Air Quality
+  getAirQuality: async (city) => {
+    try {
+      // Cari koordinat dulu
+      const geoResponse = await axios.get(
+        `${GEO_URL}/direct?q=${city}&limit=1&appid=${WEATHER_API_KEY}`
+      );
+      
+      if (!geoResponse.data || geoResponse.data.length === 0) {
+        throw new Error('Kota tidak ditemukan');
+      }
+      
+      const { lat, lon } = geoResponse.data[0];
+      
+      // Dapatkan air quality berdasarkan koordinat
+      const response = await axios.get(
+        `${BASE_URL}/air_pollution?lat=${lat}&lon=${lon}&appid=${WEATHER_API_KEY}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Air quality error:', error);
+      throw new Error('Data kualitas udara tidak tersedia');
+    }
+  },
+
+  // Get air quality by coordinates - ✅ DITAMBAHKAN
+  getAirQualityByCoords: async (lat, lon) => {
+    try {
+      const response = await axios.get(
+        `${BASE_URL}/air_pollution?lat=${lat}&lon=${lon}&appid=${WEATHER_API_KEY}`
+      );
+      return response.data;
+    } catch (error) {
+      console.error('Air quality by coords error:', error);
+      throw new Error('Data kualitas udara tidak tersedia untuk lokasi ini');
     }
   },
 
